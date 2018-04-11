@@ -22,6 +22,7 @@ function bindContextMenu(ko) {
   var utils = ko.utils;
   var registerEvent = utils.registerEventHandler;
   var isObservable = ko.isObservable;
+  var activeClass;
 
   registerEvent(document, 'click', function (event) {
     var button = event.which || event.button;
@@ -55,6 +56,7 @@ function bindContextMenu(ko) {
       var allBindings = allBindingsAccessor();
       var defaultClass = allBindings.contextMenuClass || 'context-menu';
       var activeElement;
+      activeClass = allBindings.activeClass || false;
 
       // bind on click? bind on context click?
       if (allBindings.bindMenuOnClick) {
@@ -127,6 +129,10 @@ function bindContextMenu(ko) {
               menuElement.style.left = 1 * (rightOfViewport - menuElement.offsetWidth - 10) + 'px';
             } else {
               menuElement.style.left = mouseX(event) + 'px';
+            }
+
+            if (activeClass) {
+              event.target.classList.add(activeClass);
             }
 
             event.preventDefault();
@@ -346,6 +352,14 @@ function bindContextMenu(ko) {
   function hideCurrentMenu() {
     if (currentMenu && currentMenu.parentNode) {
       currentMenu.parentNode.removeChild(currentMenu);
+
+      if (activeClass) {
+        var elems = document.querySelectorAll('.' + activeClass);
+
+        [].forEach.call(elems, function (el) {
+          el.classList.remove(activeClass);
+        });
+      }
     }
 
     currentMenu = null;
